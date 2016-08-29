@@ -15,8 +15,8 @@ public class ApplicationTest extends ApplicationTestCase<Application>{
     }
 
     public void testTask() throws Exception {
-        new MyAsyncTask().execute(getApplication()).get();
-
+        String result = new MyAsyncTask().execute(getApplication()).get();
+        assertTrue(!result.isEmpty());
 
     }
 }

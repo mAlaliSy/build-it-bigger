@@ -15,7 +15,7 @@ public class ApplicationTest extends ApplicationTestCase<Application>{
     }
 
     public void testTask() throws Exception {
-        new MyAsyncTaskTest().execute().get();
+        new MyAsyncTask().execute(getApplication()).get();
 
 
     }

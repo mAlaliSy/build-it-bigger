@@ -20,9 +20,9 @@ import java.io.IOException;
  * Created by mohammad on 29/08/16.
  */
 
-class MyAsyncTask extends AsyncTask<Context,Void,String> {
+class MyAsyncTask extends AsyncTask<Context, Void, String> {
     static MyApi myApiService;
-    Context context ;
+    Context context;
     ProgressDialog progressDialog;
 
     @Override
@@ -31,17 +31,17 @@ class MyAsyncTask extends AsyncTask<Context,Void,String> {
         context = contexts[0];
 
 
+        if (context != null)
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog = new ProgressDialog(context);
+                    progressDialog.setMessage(context.getString(R.string.pleaseWait));
+                    progressDialog.show();
+                }
+            });
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                progressDialog = new ProgressDialog(context);
-                progressDialog.setMessage(context.getString(R.string.pleaseWait));
-                progressDialog.show();
-            }
-        });
-
-        if (myApiService == null ){
+        if (myApiService == null) {
 
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -60,22 +60,28 @@ class MyAsyncTask extends AsyncTask<Context,Void,String> {
             myApiService = builder.build();
         }
 
-
+        String s = null;
         try {
-            return myApiService.tellJoke().execute().getData();
+            s = myApiService.tellJoke().execute().getData();
         } catch (IOException e) {
-            return e.getMessage();
+            throw new AssertionError();
         }
 
+
+        if (s == null || s.isEmpty())
+            throw new AssertionError("Empty String Returned !");
+
+        return s;
     }
 
 
     @Override
     protected void onPostExecute(String s) {
 
-        progressDialog.dismiss();
-        Intent intent = new Intent(context , JokeViewerActivity.class);
-        intent.putExtra("joke",s);
+        if (progressDialog != null)
+            progressDialog.dismiss();
+        Intent intent = new Intent(context, JokeViewerActivity.class);
+        intent.putExtra("joke", s);
         context.startActivity(intent);
     }
 }
